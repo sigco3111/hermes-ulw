@@ -1,8 +1,3 @@
----
-name: hermes-ulw-configuration
-description: OMO configuration reference.
----
-
 # Configuration Reference
 
 ## oh-my-openagent.json

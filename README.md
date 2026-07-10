@@ -1,8 +1,3 @@
----
-name: hermes-ulw-readme
-description: README for hermes-ulw skill.
----
-
 # Hermes ULW — oh-my-openagent Ultrawork 가이드
 
 > **ULW = Ultrawork. 한 단어로 모든 에이전트를 활성화하고, 끝날 때까지 멈추지 않는 워크플로우.**

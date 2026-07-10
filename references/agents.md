@@ -1,8 +1,3 @@
----
-name: hermes-ulw-agents
-description: 11-agent inventory for omo.
----
-
 # The 11 Agents — Deep Dive
 
 > **Source**: code-yeongyu/oh-my-openagent `docs/guide/orchestration.md`

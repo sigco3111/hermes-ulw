@@ -1,8 +1,3 @@
----
-name: hermes-ulw-prompts
-description: Copy-paste prompt templates for omo ULW workflows.
----
-
 # ULW Prompt Templates
 
 Copy-paste these into OpenCode (after `bunx oh-my-openagent install`).
