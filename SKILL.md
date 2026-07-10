@@ -15,7 +15,7 @@ metadata:
 
 ## Overview
 
-**ULW = "Ultrawork"**, a feature of **oh-my-openagent (a.k.a. omo, formerly oh-my-opencode)**, an OpenCode plugin. Typing the keyword `ulw` (or `ultrawork`) in front of a task triggers a multi-agent orchestration that:
+**ULW = "Ultrawork"**, a feature of **oh-my-openagent (a.k.a. omo, formerly oh-my-opencode)**, available as a plugin for both **OpenCode** (Ultimate Edition, full 11-agent orchestration) and **Codex CLI** (Light Edition, simplified multi-agent subset). Typing the keyword `ulw` (or `ultrawork`) in front of a task triggers a multi-agent orchestration that:
 
 1. Activates the planning layer (**Prometheus**)
 2. Activates the verification layer (**Momus**)
@@ -23,6 +23,8 @@ metadata:
 4. Delegates to specialized subagents (**Oracle**, **Librarian**, **Explore**, **Multimodal-Looker**, **Metis**, **Sisyphus-Junior**)
 5. **Loops until 100% done** (`ulw-loop`, Todo Enforcer pulls the agent back if idle)
 6. Verifies work before declaring completion
+
+> **Edition note**: OpenCode gets the *Ultimate Edition* (all 11 agents, 54+ lifecycle hooks, 5 built-in MCPs, Team Mode, Hephaestus). Codex gets the *Light Edition* — a streamlined subset (typically Sisyphus, Momus, basic multi-agent loop) without Team Mode / Hephaestus. For "full" ULW (planning + verification + parallel workers), use OpenCode. For single-shot `ulw <task>` on Codex, the Light Edition still drives the keyword.
 
 In OMO's own words: **"One word. Every agent activates. Doesn't stop until done."**
 
@@ -214,12 +216,28 @@ After `ulw` task completes:
 ## Setup: Install oh-my-openagent
 
 ```bash
-# Ultimate Edition (OpenCode + OMO)
+# Ultimate Edition (OpenCode + OMO, full 11-agent orchestration)
 bunx oh-my-openagent install
 
-# Light Edition (Codex CLI)
+# Light Edition (Codex CLI, simplified multi-agent subset)
 npx lazycodex-ai install
 ```
+
+### Which Edition Should I Use?
+
+| | **Ultimate (OpenCode)** | **Light (Codex)** |
+|---|---|---|
+| Install command | `bunx oh-my-openagent install` | `npx lazycodex-ai install` |
+| Agents | All 11 (Prometheus, Atlas, Momus, Sisyphus, Hephaestus, Oracle, Explore, Librarian, Multimodal-Looker, Metis, Sisyphus-Junior) | Streamlined subset (Sisyphus + core loop; Team Mode / Hephaestus not included) |
+| `ulw <task>` keyword | ✅ Full orchestration | ✅ Keyword triggers multi-agent loop |
+| `@plan` → `/start-work` | ✅ | ⚠️ Partial — depends on Light Edition version |
+| Team Mode (v4.0, 8 parallel) | ✅ | ❌ |
+| Hephaestus deep mode | ✅ | ❌ |
+| Built-in MCPs (Exa, Context7, Grep.app) | ✅ (5) | ❌ (use your own) |
+| Lifecycle hooks | 54+ | Minimal |
+| Best for | "Just figure it out" full autonomous runs | "Drive the `ulw` keyword" with existing Codex setup |
+
+**Quick rule**: If you already use OpenCode, install Ultimate and get everything. If you already use Codex CLI and just want the `ulw` keyword behavior + a multi-agent loop, install Light. The Light Edition keeps the ULW *feel* (keyword-driven, loop-until-done) without requiring a toolchain switch.
 
 The Ultimate Edition adds:
 

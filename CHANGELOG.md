@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.3.2] - 2026-07-10
+
+### Changed
+- **Clarify Codex compatibility** in both `SKILL.md` and `README.md`
+  - Overview now explicitly names both OpenCode (Ultimate Edition, full 11-agent orchestration) and Codex CLI (Light Edition, simplified multi-agent subset)
+  - Added "Which Edition Should I Use?" comparison table in `SKILL.md`
+  - Added "OpenCode vs Codex" section in `README.md`
+  - Documents that `ulw <task>` keyword works on both, but Team Mode / Hephaestus / built-in MCPs are OpenCode-only
+
+### Notes
+- Addresses user-reported ambiguity: "Codex도 사용 가능한 것처럼 되어 있는데" — yes, Light Edition supports the `ulw` keyword. Full 11-agent orchestration is OpenCode-only.
+
+---
+
 ## [0.3.0] - 2026-07-10
 
 ### Added
