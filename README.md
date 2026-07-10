@@ -1,12 +1,18 @@
+---
+name: hermes-ulw-readme
+description: README for hermes-ulw skill.
+---
+
 # Hermes ULW — oh-my-openagent Ultrawork 가이드
 
 > **ULW = Ultrawork. 한 단어로 모든 에이전트를 활성화하고, 끝날 때까지 멈추지 않는 워크플로우.**
+> **Hermes Agent와 함께 쓸 때 자동으로 트리거됩니다.**
 
 ---
 
 ## 🍔 한 줄 요약
 
-> **"ulw 한 단어 입력하면, AI 팀이 알아서 다 끝내준다"**
+> **"`ulw <task>` 한 마디 입력하면, AI 팀이 알아서 다 끝내준다"**
 
 음식으로 비유하면:
 - 🍱 **단순 주문** = 그냥 프롬프트 — 셰프 한 명이 요리 하나
@@ -16,63 +22,89 @@
 
 ---
 
-## 🧠 핵심 개념 (30초)
+## 🧠 핵심 개념 (1분)
 
-### ULW는 Ultra-Large **Window**가 아니에요
-**이전 버전(v0.1.0)에서 제가 잘못 가정한 오류**였고, **v0.2.0에서 정정**합니다. 정확한 뜻은 **Ultrawork**입니다.
-
-### 진짜 ULW란?
-**oh-my-openagent (omo) 플러그인이 OpenCode에 추가하는 기능.** `ulw` 또는 `ultrawork`라는 단어를 프롬프트에 붙이면:
+### ULW란?
+**oh-my-openagent (omo) 플러그인이 OpenCode에 추가하는 키워드 기능.** `ulw` 또는 `ultrawork` 단어를 프롬프트에 붙이면:
 1. **모든 에이전트 활성화** — 11개 에이전트가 한꺼번에 깨어남
 2. **다 끝날 때까지 안 멈춤** — `ulw-loop`가 100% 완료까지 반복
 3. **다 같이 일함** — 기획(Prometheus), 실행(Atlas), 검증(Momus), 워커(Sisyphus 등)
 
-OMO의 표현: **"One word. Every agent activates. Doesn't stop until done."**
+OMO 공식 표현: **"One word. Every agent activates. Doesn't stop until done."**
 
-### ULW vs 그냥 Claude Code
+### 왜 Hermes Agent 스킬인가?
+이 `hermes-ulw` 스킬은 **사용자가 Hermes 대화에서 `ulw` 키워드를 쓰면 자동으로 로드되어**, OpenCode + omo 셋업 방법을 안내하고, omo가 자동으로 처리할 수 있도록 도와줍니다. 그냥 자연스러운 대화 흐름 안에서 작업할 수 있어요.
 
-| | 그냥 Claude Code | ULW (oh-my-openagent) |
+### ULW vs 그냥 코딩 도구
+
+| | 그냥 코딩 도구 | ULW (oh-my-openagent) |
 |---|---|---|
-| 한 가지 일 | ✅ 잘함 | ✅ 잘함 |
-| 여러 단계 + 검증 | 사람 손 필요 | **에이전트 팀이 자동** ✅ |
+| 한 가지 일 | ✅ | ✅ |
+| 여러 단계 + 검증 | 사람 손 필요 | **에이전트 팀이 자동** |
 | "다 끝내" 보장 | ❌ | ✅ (ulw-loop) |
-| 백엔드 | Claude Code CLI | **OpenCode + 11개 에이전트** |
+| 백엔드 | 다양 | **OpenCode + 11개 에이전트** |
 
 ---
 
-## 🚀 5분 안에 시작하기
+## 📦 설치
 
-### 1단계: OpenCode + OMO 설치
+### 1단계: oh-my-openagent 설치
 
 ```bash
-# OpenCode 설치 (https://opencode.ai/)
-# Ultimate Edition (OpenCode + 모든 기능)
+# Ultimate Edition (OpenCode + 모든 OMO 기능)
 bunx oh-my-openagent install
 
 # Light Edition (Codex CLI에서 쓰려면)
 npx lazycodex-ai install
 ```
 
-### 2단계: 인증
+### 2단계: OpenCode 인증
 
-OpenCode 내에서 `/connect` (slash command) → 본인이 쓰는 provider 선택:
+OpenCode 안에서 `/connect` (slash command) → 본인이 쓰는 provider 선택:
 
 - Anthropic (Claude)
 - OpenAI (GPT)
 - Gemini
 - Z.ai (GLM)
 - OpenCode Zen
-- 또는 기타 OpenAI 호환 endpoint
+- 기타 OpenAI 호환 endpoint
 
-### 3단계: 테스트
+### 3단계: Hermes에 `hermes-ulw` 스킬 설치
 
-OpenCode에서 입력:
+이 저장소의 `SKILL.md`를 Hermes가 알면, 사용자가 `ulw` 키워드를 쓸 때마다 자동 로드됩니다.
 
+#### 옵션 A: 로컬 설치 (Hermes가 자동 인식)
+
+```bash
+# 1. 저장소 클론 (또는 다운로드)
+git clone https://github.com/sigco3111/hermes-ulw.git /tmp/hermes-ulw
+
+# 2. SKILL.md (그리고 선택적으로 references/) 복사
+mkdir -p ~/.hermes/skills/autonomous-ai-agents/hermes-ulw
+cp /tmp/hermes-ulw/SKILL.md ~/.hermes/skills/autonomous-ai-agents/hermes-ulw/SKILL.md
+cp -r /tmp/hermes-ulw/references ~/.hermes/skills/autonomous-ai-agents/hermes-ulw/
+cp -r /tmp/hermes-ulw/templates ~/.hermes/skills/autonomous-ai-agents/hermes-ulw/
+
+# 3. 새 Hermes 세션 시작 (skill loader는 세션 시작 시 캐시됨)
 ```
-ulw fix the typo in README.md (line 5)
-```
 
-→ **모든 에이전트 활성화 → Sisyphus가 끝낼 때까지 일함**
+> 💡 `autonomous-ai-agents/` 카테고리에 설치하는 이유는 다른 코딩 에이전트 스킬(claude-code, codex, opencode)과 같은 위치이기 때문입니다.
+
+#### 옵션 B: Hermes에게 시키기 (자동 설치)
+
+그냥 Hermes 세션에서:
+
+> "hermes-ulw 스킬 GitHub에서 설치해줘: https://github.com/sigco3111/hermes-ulw"
+
+→ Hermes가 `skill_manage` 도구로 처리합니다 (URL 가져오기 → 등록).
+
+### 4단계: 새 세션 시작
+
+스킬 로더는 세션 시작 시 한 번 캐싱되므로, **새 Hermes 세션을 시작**해야 새 스킬이 보입니다. 그 다음부터:
+
+> "ulw add JWT authentication to the API"
+
+→ 시스템이 `hermes-ulw` 스킬을 자동 로드하고, OpenCode + omo에서 ulw 키워드를 사용하는 법을 안내·지원합니다.
 
 ---
 
@@ -92,7 +124,7 @@ fix the typo in README.md
 ulw add JWT authentication to the API
 ```
 
-→ ULW 모드. **다 끝낼 때까지 자동 진행**. 잠깐, 정의된 Done 기준 충족하면 멈춤.
+→ **ULW 모드. 다 끝낼 때까지 자동 진행.** 정의된 Done 기준 충족하면 멈춤.
 
 ### 🍽️ 계획부터 (Prometheus 사용)
 
@@ -177,7 +209,7 @@ ulw audit the user service for security vulnerabilities
 }
 ```
 
-→ 또는 단순 작업엔 `ulw` 안 붙이기 (셰프 한 명이 더 쌈).
+→ 단순 작업엔 `ulw` 안 붙이기 (셰프 한 명이 더 쌈).
 
 ### ❓ 작업 도중 멈추고 싶어요
 
@@ -200,6 +232,10 @@ cancel   ← 완전히 중단
 
 → **비슷하지만 결정적이지 않음**. Wisdom Accumulation이 누적되어 더 똑똑해지지만, 100% 동일 결과 보장 ❌.
 
+### ❓ Hermes 스킬이 자동 트리거 안 돼요
+
+새 세션을 시작했는지 확인. 스킬 로더는 세션 시작 시 한 번 캐싱됩니다.
+
 ---
 
 ## 💰 비용 가이드
@@ -212,7 +248,7 @@ cancel   ← 완전히 중단
 | Team Mode (보안 감사 등) | $3.00~$15.00 |
 | 다중 목표 ulw-loop | $2.00~$20.00 (예산 캡 설정 권장) |
 
-> 💡 **팁**: `max_cost_usd` 항상 설정. 그리고 비용 줄이려면 Sisyphus + `ulw`보다 Hephaestus 피하고, haiku 같은 가벼운 모델 활성화.
+> 💡 **팁**: `max_cost_usd` 항상 설정. 비용 줄이려면 가벼운 모델 활성화.
 
 ---
 
@@ -223,7 +259,7 @@ cancel   ← 완전히 중단
 - 📘 [`references/agents.md`](./references/agents.md) — 11개 에이전트 역할
 - 📘 [`references/ulw-loop.md`](./references/ulw-loop.md) — Ralph Loop 메커니즘
 - 📘 [`references/configuration.md`](./references/configuration.md) — OMO 설정 가이드
-- 📋 [`templates/ulw-prompt-template.md`](./templates/ulw-prompt-template.md) — 복붙용 프롬프트 10종
+- 📋 [`templates/ulw-prompt-template.md`](./templates/ulw-prompt-template.md) — 복붙용 프롬프트
 
 ---
 
@@ -231,14 +267,8 @@ cancel   ← 완전히 중단
 
 1. **API 키는 `.env`나 Keychain에만** (절대 깃허브 ❌)
 2. **`.omo/` 디렉토리는 로컬** (gitignore 권장)
-3. **Team Mode opt-in** — 기본 OFF
+3. **Team Mode는 opt-in** — 기본 OFF
 4. **`prometheus-md-only` 훅 유지** — Prometheus가 무분별하게 파일 쓰는 것 방지
-
----
-
-## ⚠️ v0.1.0에서 v0.2.0 정정 노트
-
-이전 버전은 ULW를 "Ultra-Large Window"로 잘못 설명했어요. **v0.2.0에서 정확한 정의로 완전히 다시 작성**했습니다. 자세한 내용은 `CHANGELOG.md` 참고.
 
 ---
 

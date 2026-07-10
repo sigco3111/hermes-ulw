@@ -1,7 +1,7 @@
 ---
 name: hermes-ulw
 description: "Use when the user mentions 'ULW', 'ultrawork', 'oh-my-opencode', 'oh-my-openagent', 'omo', or asks to delegate a complex coding task with the Ultrawork keyword (e.g. 'ulw fix the failing tests', 'ulw add JWT auth', 'ulw refactor this module'). Routes the request into the oh-my-openagent Ultrawork workflow on OpenCode (Prometheus planning → Sisyphus/Atlas execution → Momus verification → ULW loop until 100% done). Replaces 'lazy' manual prompting with the agent figuring out context, planning, delegating to specialized subagents (oracle, librarian, explore, multimodal-looker, metis, momus, sisyphus-junior), and not stopping until verified completion."
-version: 0.2.0
+version: 0.3.0
 author: hjshin (sigco3111)
 license: MIT
 platforms: [linux, macos]
@@ -13,11 +13,9 @@ metadata:
 
 # Hermes ULW — Ultrawork Orchestration Guide
 
-## ⚠️ Important: ULW = Ultrawork
+## Overview
 
-**ULW stands for "Ultrawork"**, NOT "Ultra-Large Window". Earlier interpretations of this skill (v0.1.0) confused the two — that was incorrect.
-
-**Ultrawork** is a feature of **oh-my-openagent (a.k.a. omo, formerly oh-my-opencode)**, an OpenCode plugin. Typing the keyword `ulw` (or `ultrawork`) in front of a task triggers a multi-agent orchestration that:
+**ULW = "Ultrawork"**, a feature of **oh-my-openagent (a.k.a. omo, formerly oh-my-opencode)**, an OpenCode plugin. Typing the keyword `ulw` (or `ultrawork`) in front of a task triggers a multi-agent orchestration that:
 
 1. Activates the planning layer (**Prometheus**)
 2. Activates the verification layer (**Momus**)
@@ -26,11 +24,9 @@ metadata:
 5. **Loops until 100% done** (`ulw-loop`, Todo Enforcer pulls the agent back if idle)
 6. Verifies work before declaring completion
 
-In OMO's own words: "One word. Every agent activates. Doesn't stop until done."
+In OMO's own words: **"One word. Every agent activates. Doesn't stop until done."**
 
-## Overview
-
-You are an OpenCode + oh-my-openagent workflow guide for the Hermes Agent. When the user types `ulw` (or `ultrawork`) before a coding task, OMO's Ultrawork mode kicks in — a coordinated AI dev team that handles planning, execution, and verification autonomously.
+This skill is the Hermes Agent guide for invoking and orchestrating that workflow.
 
 > **Food analogy**: A regular prompt is a single chef cooking one dish. ULW is the **whole kitchen brigade** — sous chef preps, grill cooks, pastry finishes, manager verifies — all coordinated, and nobody leaves until the dish is plated.
 
@@ -232,6 +228,34 @@ The Ultimate Edition adds:
 - 5 built-in MCPs (Exa, Context7, Grep.app)
 - Hash-anchored edit tool
 - All slash commands
+
+## Install This Skill into Hermes Agent
+
+This skill (`hermes-ulw`) is designed to be loaded by Hermes Agent. Install it as a **user-local skill** in the active Hermes profile:
+
+```bash
+# Clone this repo
+git clone https://github.com/sigco3111/hermes-ulw.git /tmp/hermes-ulw
+
+# Copy the SKILL.md into Hermes's skill directory
+mkdir -p ~/.hermes/skills/autonomous-ai-agents/hermes-ulw
+cp /tmp/hermes-ulw/SKILL.md ~/.hermes/skills/autonomous-ai-agents/hermes-ulw/SKILL.md
+# Optionally copy the references/ directory for linked files:
+cp -r /tmp/hermes-ulw/references ~/.hermes/skills/autonomous-ai-agents/hermes-ulw/
+
+# Start a NEW Hermes session (skill loader caches at session start)
+```
+
+> 💡 In the new session, the auto-trigger description will match whenever you mention `ulw`, `ultrawork`, `omo`, `oh-my-opencode`, `oh-my-openagent`, or related keywords — and this SKILL.md will be loaded automatically.
+
+To install from Hermes Agent itself (in-session):
+
+```
+# Ask Hermes to install (it will use skill_manage automatically):
+"hermes-ulw 스킬 설치해줘" → (uses skill_manage action='create' from URL)
+```
+
+> ⚠️ The skill loader caches at session start. After installation, **start a new session** for the new skill to be visible.
 
 ## References
 

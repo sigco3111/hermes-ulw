@@ -1,8 +1,13 @@
+---
+name: hermes-ulw-agents
+description: 11-agent inventory for omo.
+---
+
 # The 11 Agents — Deep Dive
 
 > **Source**: code-yeongyu/oh-my-openagent `docs/guide/orchestration.md`
 
-## Agent Inventory (Current as of v0.2.0)
+## Agent Inventory (Current as of v0.3.0)
 
 The system has **11 built-in agents**:
 
@@ -138,7 +143,7 @@ Use this table when deciding which agent activates:
 | Simple fix | (just prompt, no agent change) | Direct prompt |
 | `ulw <task>` keyword | Sisyphus | Type `ulw` |
 | Need precise plan first | Prometheus + Atlas | `@plan` → `/start-work` |
-| Deep architectural work | Hephaestus | Tab → Hephaestus, then `ulw <task>` |
+| Deep architectural work | Hephaestus + Sisyphus | Tab → Hephaestus, then `ulw <task>` |
 | Just research | Explore + Librarian | Background agents |
 | Verify output | Momus | Auto in plan flow |
 
@@ -149,7 +154,7 @@ Use this table when deciding which agent activates:
 | Bug fix (single file) | Just prompt (no special agent) |
 | Bug fix (multi-file) | Sisyphus + `ulw` |
 | Refactor (scoped) | Sisyphus + `ulw` |
-| Refactor (architectural) | Hephaestus + `ulw` |
+| Refactor (architectural) | Hephaestus + Sisyphus + `ulw` |
 | New feature (well-defined) | Prometheus plan → Sisyphus execute |
 | New feature (vague) | Metis consult → Prometheus plan → Sisyphus execute |
 | Code search | Sisyphus + Explore (background) |

@@ -1,6 +1,6 @@
 ---
 name: hermes-ulw-configuration
-description: Configuration reference for oh-my-openagent (omo) ULW skill in Hermes Agent.
+description: OMO configuration reference.
 ---
 
 # Configuration Reference
@@ -16,7 +16,7 @@ The main config file lives at the root of your project (or in `~/.config/opencod
   "sisyphus_agent": {
     "disabled": false,           // Enable Atlas orchestration (default: false)
     "planner_enabled": true,     // Enable Prometheus (default: true)
-    "replace_plan": true,        // Replace default plan agent with Prometheus (default: true)
+    "replace_plan": true,        // Replace default plan agent with Prometheus (default: true),
   }
 }
 ```
