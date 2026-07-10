@@ -20,27 +20,14 @@
 ## 🧠 핵심 개념 (1분)
 
 ### ULW란?
-**oh-my-openagent (omo) 플러그인**이 **OpenCode**와 **Codex CLI** 양쪽에 추가하는 키워드 기능. `ulw` 또는 `ultrawork` 단어를 프롬프트에 붙이면:
-1. **모든 에이전트 활성화** — 11개 에이전트가 한꺼번에 깨어남 (OpenCode Ultimate의 경우)
+**oh-my-openagent (omo) 플러그인**이 **OpenCode**에 추가하는 키워드 기능. `ulw` 또는 `ultrawork` 단어를 프롬프트에 붙이면:
+1. **모든 에이전트가 활성화** — 11개 에이전트가 한꺼번에 깨어남
 2. **다 끝날 때까지 안 멈춤** — `ulw-loop`가 100% 완료까지 반복
 3. **다 같이 일함** — 기획(Prometheus), 실행(Atlas), 검증(Momus), 워커(Sisyphus 등)
 
 OMO 공식 표현: **"One word. Every agent activates. Doesn't stop until done."**
 
-### OpenCode vs Codex — 어떤 Edition?
-
-| | **OpenCode + Ultimate** | **Codex + Light** |
-|---|---|---|
-| 설치 | `bunx oh-my-openagent install` | `npx lazycodex-ai install` |
-| 11 agents 전체 (Prometheus/Atlas/Momus/...) | ✅ | ⚠️ 부분 (Sisyphus 중심 단순화) |
-| `ulw <task>` 키워드 | ✅ | ✅ |
-| `@plan` → `/start-work` | ✅ | ⚠️ 버전 의존 |
-| Team Mode (8명 병렬) | ✅ | ❌ |
-| Hephaestus deep mode | ✅ | ❌ |
-| Built-in MCPs (Exa/Context7/Grep.app) | ✅ (5개) | ❌ (직접 추가) |
-| **추천 케이스** | "다 알아서 해줘" 풀 자율 | "이미 Codex 쓰는데 `ulw` 키워드 + multi-agent loop만 원함" |
-
-→ **둘 다 ULW는 동작합니다.** 다만 OpenCode = 풀 11-agent 오케스트레이션, Codex = 단순화된 multi-agent subset. "진짜 ULW"가 필요하면 OpenCode, "이미 Codex 워크플로우에 `ulw` 키워드 얹기"면 Light Edition.
+> **ULW는 OpenCode 전용 기능입니다.** Codex, Claude Code, 그 외 CLI에서는 동작하지 않아요. "이미 Codex 쓰는데 `ulw` 키워드 비슷하게 쓰고 싶다면" → Hermes의 `ulw-routing-in-hermes` 스킬 (software-development 카테고리) 참고.
 
 ### 왜 Hermes Agent 스킬인가?
 이 `hermes-ulw` 스킬은 **사용자가 Hermes 대화에서 `ulw` 키워드를 쓰면 자동으로 로드되어**, OpenCode + omo 셋업 방법을 안내하고, omo가 자동으로 처리할 수 있도록 도와줍니다. 그냥 자연스러운 대화 흐름 안에서 작업할 수 있어요.
@@ -61,11 +48,7 @@ OMO 공식 표현: **"One word. Every agent activates. Doesn't stop until done."
 ### 1단계: oh-my-openagent 설치
 
 ```bash
-# Ultimate Edition (OpenCode + 모든 OMO 기능)
 bunx oh-my-openagent install
-
-# Light Edition (Codex CLI에서 쓰려면)
-npx lazycodex-ai install
 ```
 
 ### 2단계: OpenCode 인증
