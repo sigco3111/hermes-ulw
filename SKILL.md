@@ -1,241 +1,246 @@
 ---
 name: hermes-ulw
-description: "Use when the user mentions 'ULW', 'OmniCoder ULW', 'Omni-Coder Ultra-Large-Window', or asks to delegate a coding task using their previously-familiar Ultra-Large Window workflow. Routes the task to Claude Code in Hermes using one of three modes (print mode for single-shot tasks, tmux interactive for multi-turn work, or parallel tmux for concurrent jobs) and auto-selects the mode based on the task's shape — single-shot vs iterative vs parallel-concurrent. Replaces the Omni-Coder ULW workflow with Claude Code's CLI."
-version: 0.1.0
+description: "Use when the user mentions 'ULW', 'ultrawork', 'oh-my-opencode', 'oh-my-openagent', 'omo', or asks to delegate a complex coding task with the Ultrawork keyword (e.g. 'ulw fix the failing tests', 'ulw add JWT auth', 'ulw refactor this module'). Routes the request into the oh-my-openagent Ultrawork workflow on OpenCode (Prometheus planning → Sisyphus/Atlas execution → Momus verification → ULW loop until 100% done). Replaces 'lazy' manual prompting with the agent figuring out context, planning, delegating to specialized subagents (oracle, librarian, explore, multimodal-looker, metis, momus, sisyphus-junior), and not stopping until verified completion."
+version: 0.2.0
 author: hjshin (sigco3111)
 license: MIT
 platforms: [linux, macos]
 metadata:
   hermes:
-    tags: [Coding-Agent, Claude-Code, OmniCoder-ULW, Workflow, Orchestration, PTY, tmux, Print-Mode, Parallel]
-    related_skills: [claude-code, codex, opencode]
+    tags: [OpenCode, oh-my-openagent, omo, Ultrawork, ULW, Multi-Agent, Orchestration, Hermes-CLI]
+    related_skills: [claude-code]
 ---
 
-# Hermes ULW — Omni-Coder ULW Workflow Replacement
+# Hermes ULW — Ultrawork Orchestration Guide
+
+## ⚠️ Important: ULW = Ultrawork
+
+**ULW stands for "Ultrawork"**, NOT "Ultra-Large Window". Earlier interpretations of this skill (v0.1.0) confused the two — that was incorrect.
+
+**Ultrawork** is a feature of **oh-my-openagent (a.k.a. omo, formerly oh-my-opencode)**, an OpenCode plugin. Typing the keyword `ulw` (or `ultrawork`) in front of a task triggers a multi-agent orchestration that:
+
+1. Activates the planning layer (**Prometheus**)
+2. Activates the verification layer (**Momus**)
+3. Activates the conductor (**Atlas**, **Sisyphus**)
+4. Delegates to specialized subagents (**Oracle**, **Librarian**, **Explore**, **Multimodal-Looker**, **Metis**, **Sisyphus-Junior**)
+5. **Loops until 100% done** (`ulw-loop`, Todo Enforcer pulls the agent back if idle)
+6. Verifies work before declaring completion
+
+In OMO's own words: "One word. Every agent activates. Doesn't stop until done."
 
 ## Overview
 
-Omni-Coder's ULW (Ultra-Large Window) gave you a single big context where one AI handled coding tasks top-to-bottom. **Hermes ULW** delivers the same delegating-to-AI experience using **Claude Code's CLI**, but with three distinct execution modes that auto-route based on task shape. The result is the same outcome — coding tasks run in isolated context, you get a clean summary back — but with **better cost control** and **built-in parallel execution** that ULW never had.
+You are an OpenCode + oh-my-openagent workflow guide for the Hermes Agent. When the user types `ulw` (or `ultrawork`) before a coding task, OMO's Ultrawork mode kicks in — a coordinated AI dev team that handles planning, execution, and verification autonomously.
 
-> **Food analogy**: ULW was one giant kitchen handed to one chef. Hermes ULW is **three kitchens** — a single-shot kiosk, a multi-course restaurant, and a buffet — you pick based on the order size. Or you let the orchestrator pick for you.
+> **Food analogy**: A regular prompt is a single chef cooking one dish. ULW is the **whole kitchen brigade** — sous chef preps, grill cooks, pastry finishes, manager verifies — all coordinated, and nobody leaves until the dish is plated.
 
 ## When to Use
 
 **Trigger this skill when the user says any of:**
-- "ulw로 해줘", "ulw 워크플로우로", "ulw mode로"
-- "OmniCoder ULW", "Omni-Coder ULW", "Ultra-Large Window"
-- "큰 컨텍스트로 코딩 위임", "격리된 환경에서 코딩 작업"
-- "Claude Code print mode", "tmux 인터랙티브", "병렬 작업"
-- "코딩 작업 위임", "큰 일 시켜", "delegating coding task"
+- `ulw <task>` or `ultrawork <task>` keyword in the prompt
+- "oh-my-opencode", "oh-my-openagent", "omo" + a coding task
+- "just do it mode", "lazy mode", "에이전트한테 다 맡겨"
+- "Multi-agent orchestration", "Agent 팀에게 시키고 싶어"
+- "Don't stop until done", "100% done 될 때까지"
+
+**Examples of triggering prompts:**
+- "ulw fix the failing tests"
+- "ulw add JWT authentication following our patterns"
+- "ultrawork refactor the auth module"
+- "omo한테 시켜", "이거 끝까지 알아서 해줘"
 
 **Don't trigger for:**
-- Questions about Claude Code itself (use `claude-code` skill)
+- Single-line file edits (no keyword needed)
+- Questions (just answer normally)
 - Non-coding tasks (use general delegation)
-- Quick edits (do them inline — don't over-delegate)
 
-## Mode Selection Decision Tree
-
-The orchestrator (that's you) chooses a mode **before** invoking Claude Code. Three questions:
+## Decision Flow (When Ultrawork Is Appropriate)
 
 ```
-Is the task a SINGLE, well-defined action?
-└── YES → Print Mode (one-shot, fast, $0.01-0.20)
-    Examples: bug fix, code review, doc generation, refactor single file
-
-Is the task ITERATIVE (multi-turn refinement, builds on previous output)?
-└── YES → tmux Interactive (persistent REPL, mid-high cost)
-    Examples: build a feature, debug interactively, plan-then-implement
-
-Are there 2+ CONCURRENT INDEPENDENT tasks?
-└── YES → Parallel tmux (3+ Claude Code instances)
-    Examples: bug-fix + test-add + docs all at once
+Is it a quick fix or simple task?
+├── YES → Just prompt normally, no ulw needed
+└── NO  → Is explaining the full context tedious?
+          ├── YES → Type "ulw" and let the agent figure it out
+          └── NO  → Do you need precise, verifiable execution?
+                    ├── YES → @plan (Prometheus), then /start-work
+                    └── NO  → Just use "ulw"
 ```
 
-When in doubt, **default to Print Mode** — it's the lowest-cost and most predictable.
+(Adapted from OMO's orchestration guide)
 
-## Mode 1: Print Mode (Default)
+## The 5 Modes in OMO
 
-The simplest mode. One terminal command, one result.
-
-### Invocation
-
-```bash
-zsh -i -c 'claude -p "<TASK>" --max-turns <N> [--model haiku|sonnet|opus] [--allowedTools "<TOOLS>"] [other flags]'
-```
-
-> ⚠️ Wrap in `zsh -i -c '...'` for macOS to ensure `~/.zshrc` is sourced (Claude Code needs `ANTHROPIC_API_KEY` from zshrc).
-
-### Common Flags
-
-| Flag | Default | Purpose |
+| Mode | Trigger | What it does |
 |---|---|---|
-| `--max-turns N` | unlimited | Cap agentic loops (5-10 typical) |
-| `--max-budget-usd X` | unlimited | Cap API spend ($0.50 typical) |
-| `--model <name>` | sonnet | haiku (cheap), sonnet (default), opus (heavy) |
-| `--allowedTools "<X,Y>"` | all | Whitelist allowed tools |
-| `--output-format json` | text | Get structured result |
-| `--json-schema '...'` | none | Force JSON schema output |
+| **`ulw` / `ultrawork`** | Type keyword | All agents activate, orchestration begins, loops until done |
+| **`search`** | Search-only | Find patterns, no edits |
+| **`analyze`** | Read-only | Deep investigation, no changes |
+| **`team`** | v4.0, opt-in | Lead agent + up to 8 parallel members |
+| **`hyperplan`** | Team mode | 5 hostile critics reviewing a plan before execution |
 
-### Worked Example
+## The 11 Agents
 
-```bash
-# Fix the login bug
-zsh -i -c 'cd ~/Developer/MyApp && claude -p "로그인 시 비밀번호 틀리면 에러 안 나는 버그를 찾아 고쳐줘" \
-  --allowedTools "Read,Edit,Bash" --max-turns 10'
+### Planning Layer (Human + Prometheus)
+
+| Agent | Role | Default Model |
+|---|---|---|
+| **Prometheus** | Planner — interviews user, generates `.omo/plans/*.md` | opus / gpt-5 / glm-5 |
+| **Metis** | Consultant — catches ambiguities | varies |
+
+### Verification Layer
+
+| Agent | Role | Default Model |
+|---|---|---|
+| **Momus** | Reviewer — checks plans are complete, returns OKAY/REJECT | opus / gpt-5 / gemini |
+
+### Execution Layer (Orchestrator)
+
+| Agent | Role | Default Model |
+|---|---|---|
+| **Atlas** | Conductor — reads plan, delegates tasks, verifies results | sonnet / kimi / gpt-5 / minimax |
+
+### Worker Layer (Specialized Agents)
+
+| Agent | Role | Default Model |
+|---|---|---|
+| **Sisyphus** | Primary worker | opus / kimi / gpt-5 |
+| **Hephaestus** | Autonomous deep worker (AmpCode-style) | gpt-5 (medium) |
+| **Sisyphus-Junior** | Task executor | sonnet / kimi / gpt-5 |
+| **Oracle** | Read-only architecture advisor | gpt-5 / gemini / opus |
+| **Explore** | Codebase pattern finder | subagent |
+| **Librarian** | Documentation/dependency lookup | subagent |
+| **Multimodal-Looker** | Image/PDF analysis | multimodal |
+
+## What Happens When You Type `ulw <task>`
+
+1. **IntentGate** analyzes your true intent (vs literal interpretation)
+2. **Sisyphus** (or **Hephaestus** if you switched to it) activates
+3. **Todo Continuation** kicks in — if the agent goes idle, system yanks it back
+4. **Prometheus** (if enabled) generates a plan file in `.omo/plans/`
+5. **Momus** reviews the plan → if REJECT, Prometheus iterates
+6. **Atlas** activates, reads the plan, starts delegating:
+   - `task(category="deep" | "quick" | "visual-engineering" | "ultrabrain" | ...)`
+   - `task(subagent_type="oracle")` for architecture advice
+   - `call_omo_agent(subagent_type="explore")` for code patterns
+   - `call_omo_agent(subagent_type="librarian")` for docs
+7. **Wisdom accumulation** — learnings from each subagent passed forward
+8. **ulw-loop** ensures iteration until verified-done
+9. Final report back to you
+
+## ulw-loop / Ralph Loop
+
+`/ulw-loop` (or just typing `ulw`) triggers a **self-referential loop**:
+
+```
+Hephaestus reads current state
+  → Plans next iteration
+    → Executes via tools/subagents
+      → Verifies against criteria
+        → Not done? → Loop back to top
+        → Done → Report and exit
 ```
 
-### When Print Mode Completes
+**Todo Enforcer** is the safety net: if Sisyphus goes idle without reporting completion, the system pulls it back to continue.
 
-You get back:
-- A short text result (or JSON if requested)
-- `session_id` — if you want to continue later
-- `num_turns`, `total_cost_usd`, `duration_ms` — for cost tracking
+## Common Patterns
 
-## Mode 2: tmux Interactive
+### "I want to add a feature" (lazy mode)
 
-For tasks that need back-and-forth. Claude Code runs as a persistent TUI inside tmux; you monitor and add follow-up prompts.
-
-### Invocation
-
-```bash
-# 1. Create tmux session
-tmux new-session -d -s <NAME> -x 140 -y 40
-
-# 2. Launch Claude Code inside (zsh -i for zshrc source)
-tmux send-keys -t <NAME> 'cd ~/Developer/MyApp && zsh -i -c "claude"' Enter
-
-# 3. Handle first-time trust dialog (default = Yes, just press Enter)
-sleep 5 && tmux send-keys -t <NAME> Enter
-
-# 4. Send task
-tmux send-keys -t <NAME> 'JWT 토큰 쓰도록 auth 모듈 리팩토링해줘' Enter
-
-# 5. Monitor
-sleep 15 && tmux capture-pane -t <NAME> -p -S -50
-
-# 6. Send follow-up
-tmux send-keys -t <NAME> '이제 새 JWT 코드 유닛테스트 추가해줘' Enter
-
-# 7. Cleanup
-tmux send-keys -t <NAME> '/exit' Enter && tmux kill-session -t <NAME>
+```
+ulw add JWT authentication to the API
 ```
 
-### Critical PTY Dialog Handling
+→ OMO figures out: existing patterns, library choices, file structure, tests, all on its own.
 
-Claude Code presents a **trust dialog** on first visit to a directory:
-- `1. Yes, I trust this folder ← DEFAULT` → press Enter to accept
+### "I want to fix this bug" (lazy mode)
 
-If using `--dangerously-skip-permissions`, a **second dialog** appears:
-- `1. No, exit ← DEFAULT (WRONG)` → must press Down then Enter
+```
+ulw fix the failing tests in src/auth/
+```
 
-> 💡 **Tip**: Just use print mode with `--allowedTools` to skip these dialogs entirely.
+→ OMO will investigate, plan, implement, test, verify.
 
-### When to Use Interactive Mode
+### "I need a precise plan first" (precise mode)
 
-- Multi-turn refactor → review → fix → test cycle
-- Tasks requiring human-in-the-loop decisions
-- When using slash commands (`/compact`, `/review`)
-- Exploration (large unfamiliar codebase)
+```
+@plan refactor the auth module to use role-based access control
+```
 
-### Slash Commands Cheat Sheet
+→ Prometheus interviews you, generates a plan, Momus verifies, then `/start-work` to execute.
 
-| Command | Use |
+### "I want deep architectural reasoning" (Hephaestus mode)
+
+```
+# Switch agents: Tab → Hephaestus
+ulw migrate from MongoDB to PostgreSQL with zero downtime
+```
+
+→ Hephaestus explores deeply first, then orchestrates execution.
+
+## Comparison: ulw vs /start-work vs Just-Prompt
+
+| Approach | When to Use |
 |---|---|
-| `/compact` | Compress context to save tokens |
-| `/clear` | Wipe history (fresh start) |
-| `/context` | Visualize context usage |
-| `/cost` | Token usage breakdown |
-| `/resume` | Switch sessions |
-| `/exit` | End session |
-| `# <note>` | Add to CLAUDE.md memory |
+| Just-prompt | Simple, well-scoped tasks |
+| `ulw <task>` | Complex but you trust the agent to figure it out |
+| `@plan` → `/start-work` | Complex + need precise, verifiable execution |
+| Hephaestus agent | Need GPT-5.5 deep reasoning style |
 
-## Mode 3: Parallel tmux
+## When NOT to Use ULW
 
-For 2+ independent tasks running simultaneously.
+ULW is overkill for:
 
-### Invocation
+- ❌ Single-line edits
+- ❌ Renaming a variable
+- ❌ Questions / explanations
+- ❌ Tasks with very narrow scope ("change this constant")
 
-```bash
-# Create N sessions
-for i in 1 2 3; do
-  tmux new-session -d -s "task$i" -x 140 -y 40
-done
-
-# Spawn each with independent task
-tmux send-keys -t task1 'cd ~/Developer/MyApp && zsh -i -c "claude -p \"auth 버그 수정\" --allowedTools \"Read,Edit\" --max-turns 10"' Enter
-
-tmux send-keys -t task2 'cd ~/Developer/MyApp && zsh -i -c "claude -p \"API 테스트 추가\" --allowedTools \"Read,Write,Bash\" --max-turns 15"' Enter
-
-tmux send-keys -t task3 'cd ~/Developer/MyApp && zsh -i -c "claude -p \"README 업데이트\" --allowedTools \"Read,Edit\" --max-turns 5"' Enter
-
-# Monitor all
-sleep 30 && for s in task1 task2 task3; do
-  echo "=== $s ===" && tmux capture-pane -t $s -p -S -10
-done
-```
-
-### When to Use Parallel Mode
-
-- 2+ tasks truly independent (no shared state, no communication)
-- Wall-clock time matters (3 jobs in 15 min vs 45 min serial)
-- Cost is acceptable (multi-claude invocation = multi-billing)
-
-**Don't parallelize tasks that:**
-- Edit the same files (conflict risk)
-- Need results of each other (sequential dependency)
-- Are cheap enough that print mode does fine in series
+For those, just type normally — no `ulw` keyword needed.
 
 ## Common Pitfalls
 
-1. **Forgetting `zsh -i -c`** on macOS — Claude Code won't find `ANTHROPIC_API_KEY` and crashes with "Invalid API key". Always wrap.
-2. **Setting `--max-turns` too low** — silently truncates work. Start at 5-10 for print, no cap for interactive.
-3. **Not handling the trust dialog** on first tmux launch — interactive mode appears frozen; just press Enter.
-4. **Parallel tmux bombing the same files** — race condition. Use git worktree per task (`claude -w <name>`) for isolation.
-5. **Cost runaway on opus model** — opus is 5× sonnet price. Default to sonnet unless task needs deep reasoning.
-6. **`ANTHROPIC_BASE_URL` not set when using proxy** (e.g., minimax, OpenRouter) — see references/zshrc-setup.md.
-7. **Token key in plain `.zshrc` with no `chmod`** — if macOS backup syncs the file, key leaks. Use 1Password CLI or macOS Keychain.
+1. **Don't prefix simple tasks with `ulw`** — wastes resources; ULW triggers 11-agent orchestration, overkill for trivial work.
+2. **`ulw` ≠ a magic wand** — it's a starting trigger. The agent still needs enough context to interpret your task.
+3. **Hephaestus vs ulw in Sisyphus** — Hephaestus is for "AmpCode deep mode" autonomous exploration. For most tasks, ulw in Sisyphus is better.
+4. **`/ulw-loop` doesn't verify quality** — it verifies completion. Quality verification is done by Momus at planning time.
+5. **Wisdom accumulation carries forward** — bad patterns get reinforced unless you correct them explicitly.
 
 ## Verification Checklist
 
-After running any mode:
+After `ulw` task completes:
 
-- [ ] Result came back without "Invalid API key" or "Tool use not allowed"
-- [ ] `--max-turns` was hit before any auto-truncation (check `num_turns`)
-- [ ] Cost is within budget (check `total_cost_usd` or set hard cap)
-- [ ] For tmux: `tmux ls` shows sessions, no orphans
-- [ ] For interactive: `/context` shows < 70% memory usage (else `/compact`)
-- [ ] For parallel: all sessions completed (no zombie tmux)
+- [ ] All agents in the planning + execution + verification layers actually activated (check logs)
+- [ ] Plan file in `.omo/plans/` (if Prometheus used)
+- [ ] No stuck subagents
+- [ ] Wisdom accumulation propagated to subsequent agents
+- [ ] Final verification criteria met (mentioned in plan)
 
-## Quick Reference: One-Line Recipes
+## Setup: Install oh-my-openagent
 
-**Code review:**
 ```bash
-zsh -i -c 'cd ~/Developer/MyApp && git diff main | claude -p "이 변경사항 리뷰" --max-turns 3'
+# Ultimate Edition (OpenCode + OMO)
+bunx oh-my-openagent install
+
+# Light Edition (Codex CLI)
+npx lazycodex-ai install
 ```
 
-**Bug fix:**
-```bash
-zsh -i -c 'cd ~/Developer/MyApp && claude -p "로그인 버튼 안 눌리는 버그 고쳐줘" --allowedTools "Read,Edit" --max-turns 10'
-```
+The Ultimate Edition adds:
 
-**Generate docs:**
-```bash
-zsh -i -c 'cd ~/Developer/MyApp && claude -p "src/ 구조 분석해서 README 만들어줘" --allowedTools "Read,Write" --max-turns 8'
-```
-
-**Refactor:**
-```bash
-zsh -i -c 'cd ~/Developer/MyApp && claude -p "auth 모듈을 react-hook-form으로 리팩토링" --allowedTools "Read,Edit" --max-turns 15'
-```
+- 11 agents (including ulw-loop, ultrawork, Team Mode)
+- 54+ lifecycle hooks
+- 5 built-in MCPs (Exa, Context7, Grep.app)
+- Hash-anchored edit tool
+- All slash commands
 
 ## References
 
-- `references/print-mode.md` — Deep dive on print mode flags, JSON schemas, piping input
-- `references/tmux-interactive.md` — Multi-turn workflows, worktree isolation, slash commands
-- `references/parallel-tmux.md` — Race condition avoidance, fan-out/fan-in patterns
-- `references/zshrc-setup.md` — API key setup, base URLs, minimax/OpenRouter integration
-- `templates/ulw-prompt-template.md` — Copy-paste templates for common task types
+- `references/orchestration.md` — Full architecture of planning/execution/worker layers
+- `references/agents.md` — All 11 agents and their roles in detail
+- `references/ulw-loop.md` — The Ralph Loop / ULW loop mechanics
+- `references/configuration.md` — `oh-my-openagent.json` settings
+- `templates/ulw-prompt-template.md` — Copy-paste prompt templates for common ulw workflows
 
 ## One-Line Pitch
 
-> **Hermes ULW = Omni-Coder ULW's job, done cheaper and parallel-ready, with Claude Code's CLI instead of ULW's giant context.**
+> **Hermes ULW = the oh-my-openagent Ultrawork keyword, brought into Hermes Agent — type `ulw <task>` and the agent figures out planning, execution, and verification on its own, looping until the work is verifiably done.**
